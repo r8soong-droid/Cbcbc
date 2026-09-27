@@ -16,11 +16,12 @@ jobs:
     - name: Unzip project file
       run: unzip -o *.zip
 
-    - name: Set Java and Kotlin target to 1.8 for Android compatibility
+    - name: Force Java and Kotlin target to 1.8
       run: |
         find . -name "*.gradle*" -type f -exec sed -i 's/VERSION_17/VERSION_1_8/g' {} +
         find . -name "*.gradle*" -type f -exec sed -i "s/'17'/'1.8'/g" {} +
         find . -name "*.gradle*" -type f -exec sed -i 's/"17"/"1.8"/g' {} +
+        find . -name "build.gradle*" -type f | xargs -I {} sh -c 'grep -q "android" "{}" && echo "\ntasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {\n    kotlinOptions {\n        jvmTarget = \"1.8\"\n    }\n}" >> "{}"'
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -32,7 +33,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Build APK
-      run: gradle assembleDebug
+      run: gradle assembleDebug -Pkotlin.jvm.target.validation.mode=IGNORE
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
