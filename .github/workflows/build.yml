@@ -16,6 +16,12 @@ jobs:
     - name: Unzip project file
       run: unzip -o *.zip
 
+    - name: Fix Java/Kotlin version mismatch
+      run: |
+        sed -i 's/VERSION_1_8/VERSION_17/g' app/build.gradle
+        sed -i "s/'1.8'/'17'/g" app/build.gradle
+        sed -i 's/"1.8"/"17"/g' app/build.gradle
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
